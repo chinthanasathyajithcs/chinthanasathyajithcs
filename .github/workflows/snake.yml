@@ -15,6 +15,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Render streak card
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p dist
+          python3 scripts/streak.py "${{ github.repository_owner }}" dist/streak.svg
+
       - name: Generate contribution grid
         uses: Platane/snk@v3
         id: snake
@@ -22,13 +29,6 @@ jobs:
           github_user_name: ${{ github.repository_owner }}
           outputs: |
             dist/contribution-grid.svg?palette=github-dark&color_snake=#00D9FF&color_dots=#161B22,#0a4a5c,#0d7a99,#00b8d9,#00D9FF
-
-      - name: Render streak card
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mkdir -p dist
-          python3 scripts/streak.py "${{ github.repository_owner }}" dist/streak.svg
 
       - name: Publish to the output branch
         uses: crazy-max/ghaction-github-pages@v4
