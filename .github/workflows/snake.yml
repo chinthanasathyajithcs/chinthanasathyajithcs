@@ -13,6 +13,8 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+
       - name: Generate contribution grid
         uses: Platane/snk@v3
         id: snake
@@ -21,15 +23,12 @@ jobs:
           outputs: |
             dist/contribution-grid.svg?palette=github-dark&color_snake=#00D9FF&color_dots=#161B22,#0a4a5c,#0d7a99,#00b8d9,#00D9FF
 
-      - name: Fetch fresh streak card
+      - name: Render streak card
         env:
-          STREAK_PARAMS: hide_border=true&background=0D1117&stroke=0D1117&ring=00D9FF&fire=00D9FF&currStreakLabel=00D9FF&sideLabels=c9d1d9&currStreakNum=c9d1d9&sideNums=c9d1d9&dates=6b7280
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p dist
-          # unique query value forces a cache miss on the 24h-cached public instance
-          url="https://streak-stats.demolab.com?user=${{ github.repository_owner }}&${STREAK_PARAMS}&t=$(date +%s)"
-          curl -fsSL --retry 3 --retry-delay 5 "$url" -o dist/streak.svg
-          head -c 200 dist/streak.svg | grep -q "<svg" || { echo "streak response is not an SVG"; exit 1; }
+          python3 scripts/streak.py "${{ github.repository_owner }}" dist/streak.svg
 
       - name: Publish to the output branch
         uses: crazy-max/ghaction-github-pages@v4
