@@ -1,8 +1,8 @@
-name: Contribution graph
+name: Profile cards
 
 on:
   schedule:
-    - cron: "0 */12 * * *"
+    - cron: "*/30 * * * *"
   workflow_dispatch:
   push:
     branches: [main]
@@ -13,6 +13,15 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Render streak card
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p dist
+          python3 scripts/streak.py "${{ github.repository_owner }}" dist/streak.svg
+
       - name: Generate contribution grid
         uses: Platane/snk@v3
         id: snake
