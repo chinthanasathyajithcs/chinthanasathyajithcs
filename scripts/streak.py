@@ -94,6 +94,8 @@ def render(total, current, longest, since):
 <rect width="495" height="195" rx="4.5" fill="{c['bg']}"/>
 {column(82, total, 'Total Contributions', f'{since:%b} {since.day}, {since.year} - Present', c['num'])}
 <circle cx="247.5" cy="70" r="40" fill="none" stroke="{c['ring']}" stroke-width="5"/>
+<ellipse cx="247.5" cy="30" rx="17" ry="15" fill="{c['bg']}"/>
+<path d="M247.5 15 C252 22 258.5 26 258.5 34 A11 11 0 0 1 236.5 34 C236.5 29 239.5 26.5 241.5 22.5 C242.5 25.5 244.5 27 246 27 C245 23 245.5 18.5 247.5 15 Z" fill="{c['ring']}"/>
 <text x="247.5" y="80" text-anchor="middle" font-size="28" font-weight="700" fill="{c['num']}">{current[0]}</text>
 <text x="247.5" y="140" text-anchor="middle" font-size="14" font-weight="700" fill="{c['label']}">Current Streak</text>
 <text x="247.5" y="162" text-anchor="middle" font-size="12" fill="{c['dates']}">{fmt_range(current[1], current[2])}</text>
