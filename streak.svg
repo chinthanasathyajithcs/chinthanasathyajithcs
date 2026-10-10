@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="495" height="195" viewBox="0 0 495 195" role="img" aria-label="Contribution streak">
+<style>text{font-family:'Segoe UI',Ubuntu,sans-serif}</style>
+<rect width="495" height="195" rx="4.5" fill="#0D1117"/>
+<text x="82" y="62" text-anchor="middle" font-size="28" font-weight="700" fill="#c9d1d9">716</text><text x="82" y="96" text-anchor="middle" font-size="14" fill="#c9d1d9">Total Contributions</text><text x="82" y="118" text-anchor="middle" font-size="12" fill="#6b7280">Jan 1, 2023 - Present</text>
+<circle cx="247.5" cy="70" r="40" fill="none" stroke="#00D9FF" stroke-width="5"/>
+<ellipse cx="247.5" cy="30" rx="17" ry="15" fill="#0D1117"/>
+<path d="M247.5 15 C252 22 258.5 26 258.5 34 A11 11 0 0 1 236.5 34 C236.5 29 239.5 26.5 241.5 22.5 C242.5 25.5 244.5 27 246 27 C245 23 245.5 18.5 247.5 15 Z" fill="#00D9FF"/>
+<text x="247.5" y="80" text-anchor="middle" font-size="28" font-weight="700" fill="#c9d1d9">9</text>
+<text x="247.5" y="140" text-anchor="middle" font-size="14" font-weight="700" fill="#00D9FF">Current Streak</text>
+<text x="247.5" y="162" text-anchor="middle" font-size="12" fill="#6b7280">Oct 2 - Oct 10</text>
+<text x="413" y="62" text-anchor="middle" font-size="28" font-weight="700" fill="#c9d1d9">9</text><text x="413" y="96" text-anchor="middle" font-size="14" fill="#c9d1d9">Longest Streak</text><text x="413" y="118" text-anchor="middle" font-size="12" fill="#6b7280">Oct 2 - Oct 10</text>
+</svg>
