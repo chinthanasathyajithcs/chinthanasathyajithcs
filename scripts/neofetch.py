@@ -1,38 +1,42 @@
-"""Render a neofetch-style profile card (ASCII avatar + info) as SVG.
+"""Render a neofetch-style profile card (ASCII portrait + info) as SVG.
 
 Usage: GH_TOKEN=... python3 scripts/neofetch.py <login> <output.svg>
-Needs Pillow for the ASCII avatar.
+Needs Pillow for the ASCII portrait.
 """
 import datetime as dt
-import io
 import os
 import sys
-import urllib.request
+from pathlib import Path
 from xml.sax.saxutils import escape
 
-from PIL import Image, ImageOps
+from PIL import Image
 
 from streak import contribution_counts, graphql, streaks
 
+PORTRAIT = Path(__file__).parent / "assets" / "portrait.png"
+
 COLORS = {
-    "bg": "#0D1117",
-    "accent": "#50BF91",
-    "value": "#c9d1d9",
-    "dots": "#6b7280",
-    "art": "#50BF91",
+    "bg": "#161b22",
+    "key": "#ffa657",
+    "value": "#a5d6ff",
+    "title": "#c9d1d9",
+    "rule": "#6e7681",
+    "dots": "#484f58",
+    "art": "#c9d1d9",
 }
 
-ART_COLUMNS = 52
-ART_ROWS = 26
-ART_GAMMA = 0.7
+ART_COLUMNS = 72
+ART_ROWS = 36
 ART_RAMP = " .:-=+*#%@"
-ART_FONT_SIZE = 10
-ART_CHAR_WIDTH = 6
+BACKDROP_ALPHA = 128
+ART_FONT_SIZE = 8
+ART_CHAR_WIDTH = 4.8
+ART_LINE_HEIGHT = 9.6
 LINE_HEIGHT = 16
 INFO_FONT_SIZE = 12
 INFO_CHAR_WIDTH = 7.2
 INFO_WIDTH_CHARS = 58
-PADDING = 20
+PADDING = 24
 GAP = 30
 
 PROFILE = (
@@ -46,42 +50,41 @@ PROFILE = (
 CONTACT = (
     ("Email", "chinthanasathyajith.dev@gmail.com"),
     ("LinkedIn", "chinthana-sathyajith"),
-    ("GitHub", "chinthanasathyajithcs"),
 )
 
 STATS_QUERY = "query($l:String!){user(login:$l){repositories(ownerAffiliations:OWNER,privacy:PUBLIC){totalCount} followers{totalCount}}}"
 
 
-def avatar_art(login):
-    """Return the avatar as ASCII rows, dark pixels blank and bright pixels dense."""
-    with urllib.request.urlopen(f"https://github.com/{login}.png?size=200", timeout=30) as response:
-        image = Image.open(io.BytesIO(response.read()))
-    gray = ImageOps.autocontrast(image.convert("L").resize((ART_COLUMNS, ART_ROWS), Image.LANCZOS))
-    gray = gray.point(lambda v: round(255 * (v / 255) ** ART_GAMMA))
+def portrait_art():
+    """Return the portrait as ASCII rows: transparent backdrop blank, darker tones denser."""
+    tones, alpha = Image.open(PORTRAIT).convert("LA").split()
+    size = (ART_COLUMNS, ART_ROWS)
+    tones, alpha = tones.resize(size, Image.BOX), alpha.resize(size, Image.BOX)
     last = len(ART_RAMP) - 1
-    return [
-        "".join(ART_RAMP[gray.getpixel((x, y)) * last // 255] for x in range(ART_COLUMNS))
-        for y in range(ART_ROWS)
-    ]
+
+    def cell(x, y):
+        if alpha.getpixel((x, y)) < BACKDROP_ALPHA:
+            return " "
+        return ART_RAMP[max(1, (255 - tones.getpixel((x, y))) * last // 255)]
+
+    return ["".join(cell(x, y) for x in range(ART_COLUMNS)) for y in range(ART_ROWS)]
 
 
 def fetch_stats(login, token):
     user = graphql(STATS_QUERY, {"l": login}, token)
     counts = contribution_counts(login, token)
-    today = dt.datetime.now(dt.timezone.utc).date()
-    total, current, longest = streaks(counts, today)
+    total, _, _ = streaks(counts, dt.datetime.now(dt.timezone.utc).date())
     return (
         ("Repos", f"{user['repositories']['totalCount']} public"),
         ("Followers", str(user["followers"]["totalCount"])),
         ("Contributions", f"{total:,}"),
-        ("Streak", f"{current[0]} current | {longest[0]} longest"),
     )
 
 
 def info_lines(login, stats):
     """Rows of (kind, parts) describing the right-hand column."""
     def rule(title):
-        return ("rule", (f"{title} " + "-" * INFO_WIDTH_CHARS)[:INFO_WIDTH_CHARS])
+        return ("rule", (title, "-" * (INFO_WIDTH_CHARS - len(title) - 1)))
 
     def pair(key, value):
         dots = max(INFO_WIDTH_CHARS - len(key) - len(value) - 4, 2)
@@ -102,12 +105,17 @@ def render_info(rows, x, y0):
     for index, (kind, parts) in enumerate(rows):
         y = y0 + index * LINE_HEIGHT
         if kind == "rule":
-            out.append(f'<text x="{x}" y="{y}" fill="{c["accent"]}" xml:space="preserve">{escape(parts)}</text>')
+            title, dashes = parts
+            out.append(
+                f'<text x="{x}" y="{y}" xml:space="preserve">'
+                f'<tspan fill="{c["title"]}">{escape(title)} </tspan>'
+                f'<tspan fill="{c["rule"]}">{dashes}</tspan></text>'
+            )
         elif kind == "pair":
             key, dots, value = parts
             out.append(
                 f'<text x="{x}" y="{y}" xml:space="preserve">'
-                f'<tspan fill="{c["accent"]}">{escape(key)}:</tspan>'
+                f'<tspan fill="{c["key"]}">{escape(key)}:</tspan>'
                 f'<tspan fill="{c["dots"]}"> {dots} </tspan>'
                 f'<tspan fill="{c["value"]}">{escape(value)}</tspan></text>'
             )
@@ -117,11 +125,15 @@ def render_info(rows, x, y0):
 def render(login, art, stats):
     c = COLORS
     rows = info_lines(login, stats)
+    art_height = len(art) * ART_LINE_HEIGHT
+    info_height = len(rows) * LINE_HEIGHT
+    body_height = max(art_height, info_height)
     info_x = PADDING + ART_COLUMNS * ART_CHAR_WIDTH + GAP
     width = round(info_x + INFO_WIDTH_CHARS * INFO_CHAR_WIDTH + PADDING)
-    height = PADDING * 2 + max(len(art) * (ART_FONT_SIZE + 2), len(rows) * LINE_HEIGHT)
+    height = round(PADDING * 2 + body_height)
+    info_y0 = PADDING + (body_height - info_height) / 2 + 12
     art_text = "\n".join(
-        f'<text x="{PADDING}" y="{PADDING + 10 + i * (ART_FONT_SIZE + 2)}" xml:space="preserve">{escape(line)}</text>'
+        f'<text x="{PADDING}" y="{PADDING + 8 + i * ART_LINE_HEIGHT:.1f}" xml:space="preserve">{escape(line)}</text>'
         for i, line in enumerate(art)
     )
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-label="{escape(login)} profile card">
@@ -131,7 +143,7 @@ def render(login, art, stats):
 {art_text}
 </g>
 <g font-size="{INFO_FONT_SIZE}">
-{render_info(rows, info_x, PADDING + 12)}
+{render_info(rows, info_x, info_y0)}
 </g>
 </svg>
 """
@@ -139,7 +151,7 @@ def render(login, art, stats):
 
 def main(login, output):
     token = os.environ["GH_TOKEN"]
-    svg = render(login, avatar_art(login), fetch_stats(login, token))
+    svg = render(login, portrait_art(), fetch_stats(login, token))
     with open(output, "w", encoding="utf-8") as handle:
         handle.write(svg)
     print(f"wrote {output}")

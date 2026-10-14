@@ -36,7 +36,7 @@
 
 <br/><br/>
 
-<img src="https://raw.githubusercontent.com/chinthanasathyajithcs/chinthanasathyajithcs/output/neofetch.svg?v=1" alt="Profile card" width="100%" />
+<img src="https://raw.githubusercontent.com/chinthanasathyajithcs/chinthanasathyajithcs/output/neofetch.svg?v=2" alt="Profile card" width="100%" />
 
 <br/><br/>
 
