@@ -22,13 +22,6 @@ jobs:
           mkdir -p dist
           python3 scripts/streak.py "${{ github.repository_owner }}" dist/streak.svg
 
-      - name: Render neofetch card
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          python3 -m pip install --quiet pillow
-          python3 scripts/neofetch.py "${{ github.repository_owner }}" dist/neofetch.svg
-
       - name: Generate contribution grid
         uses: Platane/snk@v3
         id: snake
