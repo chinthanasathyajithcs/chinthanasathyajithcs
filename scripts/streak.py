@@ -11,8 +11,8 @@ import urllib.request
 API_URL = "https://api.github.com/graphql"
 COLORS = {
     "bg": "#0D1117",
-    "ring": "#00D9FF",
-    "label": "#00D9FF",
+    "ring": "#50BF91",
+    "label": "#50BF91",
     "side_label": "#c9d1d9",
     "num": "#c9d1d9",
     "dates": "#6b7280",
