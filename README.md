@@ -36,10 +36,10 @@
 
 <br/><br/>
 
-<img src="https://raw.githubusercontent.com/chinthanasathyajithcs/chinthanasathyajithcs/output/streak.svg" alt="Streak" />
+<img src="https://raw.githubusercontent.com/chinthanasathyajithcs/chinthanasathyajithcs/output/streak.svg?v=2" alt="Streak" />
 
 <br/><br/>
 
-<img src="https://raw.githubusercontent.com/chinthanasathyajithcs/chinthanasathyajithcs/output/contribution-grid.svg" alt="Contribution grid" width="100%" />
+<img src="https://raw.githubusercontent.com/chinthanasathyajithcs/chinthanasathyajithcs/output/contribution-grid.svg?v=2" alt="Contribution grid" width="100%" />
 
 </div>
